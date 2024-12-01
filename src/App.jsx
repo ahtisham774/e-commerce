@@ -1,6 +1,6 @@
 import { Outlet, Route, Routes } from 'react-router-dom'
 import LandingPage from './pages/landingPage'
-import SignUp from './pages/signup'
+import SignUp from './pages/signUp'
 import Login from './pages/Login'
 import ResetPassword from './pages/forgotPassword'
 import EmailVerify from './pages/emailVerify'
