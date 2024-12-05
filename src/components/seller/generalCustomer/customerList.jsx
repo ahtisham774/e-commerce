@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,131 +31,152 @@ import {
 import { Button } from '../../../components/ui/button'
 import { Badge } from '../../../components/ui/badge'
 import {
-  Calendar,
-  ChevronDown,
-  CircleCheckBig,
-  CircleX,
-  File,
+ 
   MoreHorizontal,
   SlidersHorizontal
 } from 'lucide-react'
 import { formatCurrency, formatDate } from '../../../utils/format'
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io'
+import { API_URL } from '../../API'
+import { useAuth } from '../../../context/useAuth'
+import showToast from '../../../utils/showToast'
+import { useNavigate } from 'react-router-dom'
 
 // Sample data
-const customers = [
-  {
-    id: '#C-555231',
-    date: '2020-03-26T12:42:00',
-    customerName: 'Mikasa Ackerman',
-    location: 'Corner Street 5th London',
-    amount_spent: 164.52,
-    last_order:35.35,
-  },
-  {
-    id: '#555232',
-    date: '2020-03-26T11:42:00',
-    customerName: 'Eren Yeager',
-    location: "John's Road London 671",
-    amount_spent: 184.52,
-    last_order:35.35,
-  },
-  {
-    id: '#555233',
-    date: '2020-03-26T12:22:00',
-    customerName: 'Grisha Yeager',
-    location: '31 The Green London',
-    amount_spent: 364.52,
-    last_order:35.35,
-  },
-  {
-    id: '#555234',
-    date: '2020-03-26T10:42:00',
-    customerName: 'Historia Reuss',
-    location: '11 Church Road London',
-    amount_spent: 184.52,
-    last_order:35.35,
-  },
-  {
-    id: '#555235',
-    date: '2020-03-26T12:00:00',
-    customerName: 'Levi Ackerman',
-    location: '21 King Street London',
-    amount_spent: 564.52,
-    last_order:35.35,
-  },
-  {
-    id: '#555236',
-    date: '2020-03-26T13:42:00',
-    customerName: 'Armin Melaney',
-    location: '14 The Drive London',
-    amount_spent: 166.52,
-    last_order:35.35,
-  },
-  {
-    id: '#555237',
-    date: '2020-03-26T14:42:00',
-    customerName: 'Ronald Jamez',
-    location: "69 Station's Road London",
-    amount_spent: 164.0,
-    last_order:35.35,
-  },
-  {
-    id: '#555238',
-    date: '2020-03-26T15:42:00',
-    customerName: 'Anandreansyah',
-    location: '45 Brighton Hills London',
-    amount_spent: 164.02,
-    last_order:35.35,
-  },
-  {
-    id: '#555239',
-    date: '2020-03-26T16:42:00',
-    customerName: 'Putra Prawira',
-    location: '15 Leicester Street Road',
-    amount_spent: 164.6,
-    last_order:35.35,
-  },
-  {
-    id: '#555310',
-    date: '2020-03-26T18:42:00',
-    customerName: 'John Snow',
-    location: '7th The Avenue Apartment',
-    amount_spent: 164.42,
-    last_order:35.35,
-  },
-  {
-    id: '#555311',
-    date: '2020-03-26T21:42:00',
-    customerName: 'Snowden Spy',
-    location: '72 Manchester Street',
-    amount_spent: 344.52,
-    last_order:35.35,
-  },
-  {
-    id: '#555312',
-    date: '2020-03-26T22:42:00',
-    customerName: 'John Wickerman',
-    location: '12 Chelsea Road London',
-    amount_spent: 74.55,
-    last_order:35.35,
-  }
-]
+// const customers = [
+//   {
+//     id: '#C-555231',
+//     date: '2020-03-26T12:42:00',
+//     customerName: 'Mikasa Ackerman',
+//     location: 'Corner Street 5th London',
+//     amount_spent: 164.52,
+//     last_order:35.35,
+//   },
+//   {
+//     id: '#555232',
+//     date: '2020-03-26T11:42:00',
+//     customerName: 'Eren Yeager',
+//     location: "John's Road London 671",
+//     amount_spent: 184.52,
+//     last_order:35.35,
+//   },
+//   {
+//     id: '#555233',
+//     date: '2020-03-26T12:22:00',
+//     customerName: 'Grisha Yeager',
+//     location: '31 The Green London',
+//     amount_spent: 364.52,
+//     last_order:35.35,
+//   },
+//   {
+//     id: '#555234',
+//     date: '2020-03-26T10:42:00',
+//     customerName: 'Historia Reuss',
+//     location: '11 Church Road London',
+//     amount_spent: 184.52,
+//     last_order:35.35,
+//   },
+//   {
+//     id: '#555235',
+//     date: '2020-03-26T12:00:00',
+//     customerName: 'Levi Ackerman',
+//     location: '21 King Street London',
+//     amount_spent: 564.52,
+//     last_order:35.35,
+//   },
+//   {
+//     id: '#555236',
+//     date: '2020-03-26T13:42:00',
+//     customerName: 'Armin Melaney',
+//     location: '14 The Drive London',
+//     amount_spent: 166.52,
+//     last_order:35.35,
+//   },
+//   {
+//     id: '#555237',
+//     date: '2020-03-26T14:42:00',
+//     customerName: 'Ronald Jamez',
+//     location: "69 Station's Road London",
+//     amount_spent: 164.0,
+//     last_order:35.35,
+//   },
+//   {
+//     id: '#555238',
+//     date: '2020-03-26T15:42:00',
+//     customerName: 'Anandreansyah',
+//     location: '45 Brighton Hills London',
+//     amount_spent: 164.02,
+//     last_order:35.35,
+//   },
+//   {
+//     id: '#555239',
+//     date: '2020-03-26T16:42:00',
+//     customerName: 'Putra Prawira',
+//     location: '15 Leicester Street Road',
+//     amount_spent: 164.6,
+//     last_order:35.35,
+//   },
+//   {
+//     id: '#555310',
+//     date: '2020-03-26T18:42:00',
+//     customerName: 'John Snow',
+//     location: '7th The Avenue Apartment',
+//     amount_spent: 164.42,
+//     last_order:35.35,
+//   },
+//   {
+//     id: '#555311',
+//     date: '2020-03-26T21:42:00',
+//     customerName: 'Snowden Spy',
+//     location: '72 Manchester Street',
+//     amount_spent: 344.52,
+//     last_order:35.35,
+//   },
+//   {
+//     id: '#555312',
+//     date: '2020-03-26T22:42:00',
+//     customerName: 'John Wickerman',
+//     location: '12 Chelsea Road London',
+//     amount_spent: 74.55,
+//     last_order:35.35,
+//   }
+// ]
 
 export default function CustomerList () {
   const [status, setStatus] = useState('all')
   const [dateFilter, setDateFilter] = useState('today')
   const [currentPage, setCurrentPage] = useState(1)
+  const [customers, setCustomers] = useState([])
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
+  const { user } = useAuth()
   const [sortConfig, setSortConfig] = useState({
     key: 'date',
     direction: 'desc'
   })
 
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      setLoading(true)
+      fetch(`${API_URL}/generalCustomers/getCustomers/${user._id}`)
+        .then(response => response.json())
+        .then(data => {
+          // showToast(data.message)
+          setCustomers(data.customers || [])
+        })
+        .catch(error => {
+          showToast('Failed to fetch customers')
+          console.log(error)
+        })
+        .finally(() => setLoading(false))
+    }
+    fetchCustomers()
+  }, [])
+
   const itemsPerPage = 12
 
   // Filter customers
-  const filteredCustomers = useMemo(() => {
-    return customers.filter(order => {
+  const filteredCustomers =  customers?.filter(order => {
       const statusMatch = status === 'all' ? true : order.status === status
       const dateMatch =
         dateFilter === 'all'
@@ -163,7 +184,7 @@ export default function CustomerList () {
           : new Date(order.date).toDateString() === new Date().toDateString()
       return statusMatch || dateMatch
     })
-  }, [status, dateFilter])
+ 
 
   // Sort customers
   const sortedCustomers = useMemo(() => {
@@ -188,7 +209,7 @@ export default function CustomerList () {
   const totalPages = Math.ceil(sortedCustomers.length / itemsPerPage)
 
   const handleSort = key => {
-    console.log("Sort by",key)
+    console.log('Sort by', key)
     setSortConfig(current => ({
       key,
       direction:
@@ -197,8 +218,7 @@ export default function CustomerList () {
   }
 
   const getStatusBadge = status => {
-
-    return <Badge variant={"#4642551A"}>{status}</Badge>
+    return <Badge variant={'#4642551A'}>{status}</Badge>
   }
 
   return (
@@ -206,36 +226,54 @@ export default function CustomerList () {
       <div className='flex justify-between items-center mb-6'>
         <div>
           <h1 className='text-2xl font-bold'>General Customer</h1>
-          <p className='text-muted-foreground'>Here is your general customers list data</p>
+          <p className='text-muted-foreground'>
+            Here is your general customers list data
+          </p>
         </div>
         <div className='flex gap-4'>
-         
           <Select value={dateFilter} onValueChange={setDateFilter}>
             <SelectTrigger className='w-[180px]'>
               <SlidersHorizontal className='mr-2 mt-1 h-4 w-4' />
-              
+
               <SelectValue placeholder='Filter' />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='all' handleSelect={setDateFilter}>All Time</SelectItem>
-              <SelectItem value='today' handleSelect={setDateFilter}>Today</SelectItem>
-              <SelectItem value='week' handleSelect={setDateFilter}>This Week</SelectItem>
-              <SelectItem value='month' handleSelect={setDateFilter}>This Month</SelectItem>
+              <SelectItem value='all' handleSelect={setDateFilter}>
+                All Time
+              </SelectItem>
+              <SelectItem value='today' handleSelect={setDateFilter}>
+                Today
+              </SelectItem>
+              <SelectItem value='week' handleSelect={setDateFilter}>
+                This Week
+              </SelectItem>
+              <SelectItem value='month' handleSelect={setDateFilter}>
+                This Month
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
-
-      <div className='overflow-x-auto scroll-smooth scroll-hidden'>
+      {loading ? (
+              
+              <div className='flex  justify-center items-center h-screen w-full'>
+                <div className='animate-spin inline-block w-8 h-8 border-4 rounded-full border-t-[#ed1270]'></div>
+              </div>
+              
+            
+          ) : paginatedCustomers?.length == 0 ? (
+           
+              <div className='flex justify-center items-center  h-full w-full'>
+                <p>No customers found</p>
+              </div>
+          ) : (
+      <div className='overflow-x-auto scroll-smooth scroll-hidden min-h-[calc(100dvh-210px)] '>
         <Table>
-          <TableHeader bg="bg-[#000000] text-white">
+          <TableHeader bg='bg-[#000000] text-white'>
             <TableRow>
-              <TableHead
-                
-                onClick={() => handleSort('id')}
-              >
+              <TableHead onClick={() => handleSort('id')}>
                 <div className='flex items-center gap-1'>
-                Customer ID{' '}
+                  Customer ID{' '}
                   <div className='flex flex-col'>
                     <IoMdArrowDropup
                       className={`size-4
@@ -258,10 +296,7 @@ export default function CustomerList () {
                   </div>
                 </div>
               </TableHead>
-              <TableHead
-                
-                onClick={() => handleSort('date')}
-              >
+              <TableHead onClick={() => handleSort('date')}>
                 <div className='flex items-center gap-1'>
                   Date{' '}
                   <div className='flex flex-col'>
@@ -286,10 +321,7 @@ export default function CustomerList () {
                   </div>
                 </div>
               </TableHead>
-              <TableHead
-                
-                onClick={() => handleSort('customerName')}
-              >
+              <TableHead onClick={() => handleSort('customerName')}>
                 <div className='flex items-center gap-1'>
                   Customer Name{' '}
                   <div className='flex flex-col'>
@@ -314,11 +346,7 @@ export default function CustomerList () {
                   </div>
                 </div>
               </TableHead>
-              <TableHead
-               
-               onClick={() => handleSort('location')}
-              >
-               
+              <TableHead onClick={() => handleSort('location')}>
                 <div className='flex items-center gap-1'>
                   Location{' '}
                   <div className='flex flex-col'>
@@ -343,12 +371,9 @@ export default function CustomerList () {
                   </div>
                 </div>
               </TableHead>
-              <TableHead
-                
-                onClick={() => handleSort('amount_spent')}
-              >
+              <TableHead onClick={() => handleSort('amount_spent')}>
                 <div className='flex items-center gap-1'>
-                Total Spent{' '}
+                  Total Spent{' '}
                   <div className='flex flex-col'>
                     <IoMdArrowDropup
                       className={`size-4
@@ -371,12 +396,9 @@ export default function CustomerList () {
                   </div>
                 </div>
               </TableHead>
-              <TableHead
-               
-               onClick={() => handleSort('last_order')}
-              >
+              <TableHead onClick={() => handleSort('last_order')}>
                 <div className='flex items-center gap-1'>
-                Last Order{' '}
+                  Last Order{' '}
                   <div className='flex flex-col'>
                     <IoMdArrowDropup
                       className={`size-4
@@ -403,54 +425,54 @@ export default function CustomerList () {
             </TableRow>
           </TableHeader>
           <div className='py-4'></div>
+          
           <TableBody>
-            {paginatedCustomers.map((order, i) => (
-              <TableRow
-                key={order.id}
-                bg={i % 2 === 0 ? '#EBFDFF' : '#FFFFFF'}
-                hover='hover:!bg-[#EEDFE2]'
-              >
-                <TableCell>{order.id}</TableCell>
-                <TableCell>{formatDate(order.date)}</TableCell>
-                <TableCell>{order.customerName}</TableCell>
-                <TableCell>{order.location}</TableCell>
-                <TableCell>{formatCurrency(order.amount_spent)}</TableCell>
-                <TableCell>{getStatusBadge(order.last_order)}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant='ghost' className='h-8 w-8 p-0'>
-                        <MoreHorizontal className='h-4 w-4' />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align='end'>
-                      <DropdownMenuItem>
-                        <div className='flex items-center gap-2'>
-                         
-                          View Details
-                        </div>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <div className='flex items-center gap-2'>
-                         
-                          Edit
-                        </div>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className='text-destructive'>
-                        <div className='flex items-center gap-2'>
-                         
-                          Delete
-                        </div>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
+            {
+              paginatedCustomers?.map((order, i) => (
+                <TableRow
+                  key={order.id}
+                  bg={i % 2 === 0 ? '#EBFDFF' : '#FFFFFF'}
+                  hover='hover:!bg-[#EEDFE2]'
+                >
+                  <TableCell>{order.id}</TableCell>
+                  <TableCell>{formatDate(order.lastOrderDate)}</TableCell>
+                  <TableCell>{order.customerDetails.username}</TableCell>
+                  <TableCell>{order.location}</TableCell>
+                  <TableCell>{formatCurrency(order.totalSpent)}</TableCell>
+                  <TableCell>{getStatusBadge(order.lastOrderAmount)}</TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant='ghost' className='h-8 w-8 p-0'>
+                          <MoreHorizontal className='h-4 w-4' />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align='end'>
+                        <DropdownMenuItem handleClick={()=>navigate(`${order.customerDetails._id}`)}>
+                          <div className='flex items-center gap-2'>
+                            View Details
+                          </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <div className='flex items-center gap-2'>Edit</div>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className='text-destructive'>
+                          <div className='flex items-center gap-2'>Delete</div>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            }
           </TableBody>
         </Table>
       </div>
-
+          )
+        }
+       {
+        currentPage > 1 && 
+         
       <div className='flex items-center justify-between mt-8'>
         <p className='text-sm text-muted-foreground'>
           Showing {paginatedCustomers.length} from {sortedCustomers.length} data
@@ -482,6 +504,7 @@ export default function CustomerList () {
           </PaginationContent>
         </Pagination>
       </div>
+}
     </div>
   )
 }

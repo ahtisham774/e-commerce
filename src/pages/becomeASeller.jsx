@@ -3,6 +3,17 @@ import useRecaptcha from '../context/useRecaptcha'
 import ReCAPTCHA from 'react-google-recaptcha'
 import { SITE_KEY } from '../utils/secrets'
 import Footer from '../components/seller/footer'
+import { useEffect, useState } from 'react'
+import { API_URL } from '../components/API'
+import axios from 'axios'
+import toast from 'react-hot-toast'
+import Select from 'react-select'
+import {
+  CitySelect,
+  CountrySelect,
+  StateSelect
+} from 'react-country-state-city'
+import 'react-country-state-city/dist/react-country-state-city.css'
 
 const Heading = ({ title, subTitle }) => {
   return (
@@ -16,10 +27,137 @@ const Heading = ({ title, subTitle }) => {
 
 const BecomeASeller = () => {
   const { capchaToken, recaptchaRef, handleRecaptcha } = useRecaptcha()
+  const [formData, setFormData] = useState({
+    businessName: '',
+    street: '',
+    city: '',
+    state: '',
+    zip: '',
+    country: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    telephone: '',
+    dateOfBirth: '',
+    mobile: '',
+    website: '',
+    username: '',
+    password: '',
+    confirmPassword: '',
+    secretQuestion: '',
+    secretAnswer: '',
+    document: null,
+    about: ''
+  })
+
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [responseMessage, setResponseMessage] = useState('')
+
+  const [loading, setLoading] = useState(false)
+  const [countryid, setCountryid] = useState(0)
+  const [stateid, setstateid] = useState(0)
+  // Fetch country, state, and city data
+
+  const handleFileUpload = async e => {
+    const file = e.target.files[0]
+    if (!file) return
+    setLoading(true)
+    try {
+      const fData = new FormData()
+      fData.append('file', file)
+      fData.append('upload_preset', 'ml_default') // Replace with your Cloudinary preset
+      fData.append('cloud_name', 'dmkhjn2ii') // Replace with your Cloudinary name
+
+      const res = await axios.post(
+        'https://api.cloudinary.com/v1_1/dmkhjn2ii/upload',
+        fData
+      )
+      setFormData(prevData => ({
+        ...prevData,
+        document: res.data.secure_url
+      }))
+    } catch (error) {
+      toast.error('Error uploading file')
+      console.error('Error uploading file:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleChange = e => {
+    const { name, value } = e.target
+    setFormData(prevData => ({ ...prevData, [name]: value }))
+  }
+
+  const handleSubmit = async e => {
+    e.preventDefault()
+    if (!acceptedTerms) {
+      setResponseMessage('Please accept the terms and conditions')
+      return
+    }
+    if (!capchaToken) {
+      setResponseMessage('Please complete the captcha')
+    }
+
+    setLoading(true)
+
+    // // Constructing the form data
+    // const apiData = new FormData()
+    // Object.entries(formData).forEach(([key, value]) => {
+    //   if (value) apiData.append(key, value)
+    // })
+    const apiData = {
+      email : formData.email,
+        password : formData.password,
+        businessName : formData.businessName,
+        province : formData.state,
+        address : formData.street,
+        postalCode : formData.zip,
+        country : formData.country,
+        city : formData.city,
+        firstName : formData.firstName,
+        lastName : formData.lastName,
+        mobileNumber : formData.mobile,
+        telephone : formData.telephone,
+        dateOfBirth : formData.dateOfBirth,
+        website : formData.website,
+        username : formData.username,
+        secretQuestion : formData.secretQuestion,
+        secretAnswer : formData.secretAnswer,
+        documentUrl : formData.document,
+        about : formData.about,
+    }
+ 
+    try {
+      const response = await fetch(
+        `${API_URL}/register/seller`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(apiData)
+        }
+      )
+
+      const result = await response.json()
+      if (response.ok) {
+        toast.success('Registration successful!')
+        setResponseMessage('Registration successful!')
+      } else {
+        setResponseMessage(`Error: ${result.message}`)
+      }
+    } catch (error) {
+      setResponseMessage('An error occurred while submitting the form.')
+    } finally {
+      setLoading(false)
+    }
+  }
   return (
     <>
       <SellerNavbar />
-      <div className='flex flex-col w-full p-4 lg:p-8 gap-5'>
+      <form
+        onSubmit={handleSubmit}
+        className='flex flex-col w-full p-4 lg:p-8 gap-5'
+      >
         <div className='flex flex-col gap-3 w-full'>
           <h2 className='text-xl font-bold text-center'>
             Information Required
@@ -73,62 +211,78 @@ const BecomeASeller = () => {
                 type='text'
                 name='businessName'
                 id='businessName'
-                className='border outline-none rounded p-1 w-full border-[#717171]'
+                required
+                onChange={handleChange}
+                value={formData.businessName}
+                className='border outline-none  rounded p-1 w-full border-[#717171]'
               />
               <label htmlFor='street' className='font-normal shrink-0'>
                 Street Address
               </label>
               <input
                 type='text'
+                required
                 name='street'
                 id='street'
+                onChange={handleChange}
+                value={formData.street}
                 className='border outline-none rounded p-1 w-full border-[#717171]'
               />
-              <label htmlFor='city' className='font-normal shrink-0'>
-                City
-              </label>
-              <input
-                type='text'
-                name='city'
-                id='city'
-                className='border outline-none rounded p-1 w-full border-[#717171]'
+              <label>Country</label>
+              <CountrySelect
+                required
+                onChange={e => {
+                  setCountryid(e.id)
+                  setFormData(prevData => ({
+                    ...prevData,
+                    country: e.name
+                  }))
+                }}
+                placeHolder='Select Country'
               />
             </div>
           </div>
           <div className='flex flex-col gap-5 w-full'>
             <div className='grid sm:grid-cols-[max-content_1fr]  gap-4'>
-              <label htmlFor='state' className='font-normal shrink-0'>
-                State/Province
-              </label>
-              <input
-                type='text'
-                name='state'
-                id='state'
-                className='border outline-none rounded p-1 w-full border-[#717171]'
+              <label>State/Province</label>
+              <StateSelect
+              required
+                countryid={countryid}
+                onChange={e => {
+                  setstateid(e.id)
+                  setFormData(prevData => ({
+                    ...prevData,
+                    state: e.name
+                  }))
+                }}
+                placeHolder='Select State'
               />
-
+              <label>City</label>
+              <CitySelect
+              required
+                countryid={countryid}
+                stateid={stateid}
+                onChange={e => {
+                  console.log(e)
+                  setFormData(prevData => ({
+                    ...prevData,
+                    city: e.name
+                  }))
+                }}
+                placeHolder='Select City'
+              />
               <label htmlFor='zip' className='font-normal shrink-0'>
                 Zip/Postal Code
               </label>
               <input
                 type='text'
+                required
                 name='zip'
                 id='zip'
+                onChange={handleChange}
+                value={formData.zip}
                 className='border outline-none rounded p-1 w-full border-[#717171]'
               />
-              <label htmlFor='country' className='font-normal shrink-0'>
-                Country
-              </label>
-              <select
-                name='country'
-                id='country'
-                className='border outline-none rounded p-1 w-full border-[#717171]'
-              >
-                <option value=''>Select Country</option>
-                <option value='USA'>USA</option>
-                <option value='UK'>UK</option>
-                <option value='India'>India</option>
-              </select>
             </div>
           </div>
         </div>
@@ -145,7 +299,10 @@ const BecomeASeller = () => {
               <input
                 type='text'
                 name='firstName'
+                required
                 id='firstName'
+                onChange={handleChange}
+                value={formData.firstName}
                 className='border outline-none rounded p-1 w-full border-[#717171]'
               />
               <label htmlFor='email' className='font-normal shrink-0'>
@@ -155,6 +312,9 @@ const BecomeASeller = () => {
                 type='email'
                 name='email'
                 id='email'
+                onChange={handleChange}
+                value={formData.email}
+                required
                 className='border outline-none rounded p-1 w-full border-[#717171]'
               />
               <label htmlFor='telephone' className='font-normal shrink-0'>
@@ -165,6 +325,9 @@ const BecomeASeller = () => {
                   type='number'
                   name='telephone'
                   id='telephone'
+                  onChange={handleChange}
+                  value={formData.telephone}
+                  required
                   className='border outline-none rounded p-1 w-full border-[#717171]'
                 />
                 <label htmlFor='dateOfBirth' className='font-normal shrink-0'>
@@ -174,6 +337,9 @@ const BecomeASeller = () => {
                   type='date'
                   name='dateOfBirth'
                   id='dateOfBirth'
+                  onChange={handleChange}
+                  value={formData.dateOfBirth}
+                  required
                   className='border outline-none rounded p-1 w-full border-[#717171]'
                 />
               </div>
@@ -188,6 +354,9 @@ const BecomeASeller = () => {
                 type='text'
                 name='lastName'
                 id='lastName'
+                onChange={handleChange}
+                value={formData.lastName}
+                required
                 className='border outline-none rounded p-1 w-full border-[#717171]'
               />
 
@@ -198,6 +367,9 @@ const BecomeASeller = () => {
                 type='text'
                 name='mobile'
                 id='mobile'
+                onChange={handleChange}
+                value={formData.mobile}
+                required
                 className='border outline-none rounded p-1 w-full border-[#717171]'
               />
               <label htmlFor='website' className='font-normal shrink-0'>
@@ -207,6 +379,9 @@ const BecomeASeller = () => {
                 type='text'
                 name='website'
                 id='website'
+                onChange={handleChange}
+                value={formData.website}
+                required
                 className='border outline-none rounded p-1 w-full border-[#717171]'
               />
             </div>
@@ -224,6 +399,9 @@ const BecomeASeller = () => {
             type='text'
             name='username'
             id='username'
+            onChange={handleChange}
+            value={formData.username}
+            required
             className='border flex-1 outline-none rounded p-1 w-full border-[#717171]'
           />
         </div>
@@ -237,6 +415,9 @@ const BecomeASeller = () => {
                 type='password'
                 name='password'
                 id='password'
+                onChange={handleChange}
+                value={formData.password}
+                required
                 className='border outline-none rounded p-1 w-full border-[#717171]'
               />
               <label htmlFor='secret_question' className='font-normal shrink-0'>
@@ -244,8 +425,11 @@ const BecomeASeller = () => {
               </label>
               <input
                 type='text'
-                name='secret_question'
+                name='secretQuestion'
                 id='secret_question'
+                onChange={handleChange}
+                value={formData.secretQuestion}
+                required
                 className='border outline-none rounded p-1 w-full border-[#717171]'
               />
             </div>
@@ -260,8 +444,11 @@ const BecomeASeller = () => {
               </label>
               <input
                 type='password'
-                name='confirm-password'
+                name='confirmPassword'
                 id='confirm-password'
+                onChange={handleChange}
+                value={formData.confirmPassword}
+                required
                 className='border outline-none rounded p-1 w-full border-[#717171]'
               />
 
@@ -270,8 +457,11 @@ const BecomeASeller = () => {
               </label>
               <input
                 type='text'
-                name='secret_answer'
+                name='secretAnswer'
                 id='secret_answer'
+                onChange={handleChange}
+                value={formData.secretAnswer}
+                required
                 className='border outline-none rounded p-1 w-full border-[#717171]'
               />
             </div>
@@ -290,6 +480,7 @@ const BecomeASeller = () => {
               type='file'
               name='document'
               id='document'
+              onChange={handleFileUpload}
               className='border outline-none file:bg-black file:text-white file:rounded file:p-1 file:px-3 file:font-bold rounded w-full md:max-w-lg border-[#717171]'
             />
           </div>
@@ -301,12 +492,16 @@ const BecomeASeller = () => {
               name='about'
               id='about'
               rows={8}
+              onChange={handleChange}
+              
+              value={formData.about}
               className='border outline-none rounded resize-none p-1 w-full border-[#717171]'
             ></textarea>
           </div>
           <div className='flex flex-col md:flex-row gap-5 w-full justify-between my-3'>
             <div>
               <ReCAPTCHA
+              
                 ref={recaptchaRef}
                 sitekey={SITE_KEY}
                 onChange={handleRecaptcha}
@@ -318,6 +513,12 @@ const BecomeASeller = () => {
                   type='checkbox'
                   name='policy'
                   id='policy'
+                  required
+                  value={acceptedTerms}
+                  onChange={() => {
+                    setAcceptedTerms(!acceptedTerms)
+                    setResponseMessage('')
+                  }}
                   className='size-5 accent-black'
                 />
                 <label htmlFor='policy' className='font-normal '>
@@ -347,11 +548,14 @@ const BecomeASeller = () => {
                   submit
                 </button>
               </div>
+              {responseMessage && (
+                <p className='text-red-500 self-end'>{responseMessage}</p>
+              )}
             </div>
           </div>
         </div>
-      </div>
-        <Footer/>
+      </form>
+      <Footer />
     </>
   )
 }

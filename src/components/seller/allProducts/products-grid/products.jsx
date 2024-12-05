@@ -3,15 +3,28 @@ import { Button } from './components/ui/button'
 import { Input } from './components/ui/input'
 import ProductCard from './components/product-card'
 import { Pagination } from './components/ui/pagination'
+import { useEffect, useState } from 'react'
+import { useAuth } from '../../../../context/useAuth'
+import { API_URL } from '../../../API'
 
 export default function Products() {
-  // Generate 15 products for the grid
-  const products = Array.from({ length: 15 }, (_, i) => ({
-    id: i + 1,
-    name: `Product ${(i % 5) + 1}`,
-    category: 'Category / Product',
-    image: `/placeholder.svg?height=200&width=200`
-  }))
+
+
+  const [loading, setLoading] = useState(false)
+  const [details,setDetails] = useState(null)
+  const {user} = useAuth()
+
+  useEffect(()=>{
+    if(user){
+        fetch(`${API_URL}/seller/${user._id}/getProducts/1`)
+        .then(res => res.json())
+        .then(data => {
+          
+          setDetails(data)
+        })
+        .catch(err => console.log(err))
+    }
+  },[user])
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -44,7 +57,7 @@ export default function Products() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-          {products.map((product) => (
+          {details?.products.map((product) => (
             <ProductCard key={product.id} {...product} />
           ))}
         </div>

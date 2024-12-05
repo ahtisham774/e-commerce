@@ -8,7 +8,7 @@ const CustomerCard = ({item}) => {
 
         >
             <div className="flex items-center">
-                <div className="flex items-center justify-center shrink-0 h-[154px] w-[184px] bg-[#adadad] rounded-lg">
+                <div className="flex items-center justify-center shrink-0 h-[154px] w-[184px] bg-[#adadad] rounded-full">
                     <img
                         src={item.img}
                         alt={"img"}
@@ -23,7 +23,7 @@ const CustomerCard = ({item}) => {
             <p className="text-sm font-['Poppins'] text-shadow-sm text-[#464255]">{item.description}</p>
             <div className="flex flex-row items-center gap-3 justify-between bg-[#EEDFE2] p-4 rounded-xl">
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center shrink-0 h-[39px] w-[44px] bg-[#EEDFE2] rounded-lg">
+                    <div className="flex items-center justify-center shrink-0 h-[39px] w-[44px] bg-[#EEDFE2] rounded-full">
                         <img
                             src={item.img}
                             alt={"img"}

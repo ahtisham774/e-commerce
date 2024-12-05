@@ -20,7 +20,7 @@ const SellerNavbar = () => {
     },
     {
       name: 'Log In',
-      link: '#'
+      link: '/login'
     }
   ]
 

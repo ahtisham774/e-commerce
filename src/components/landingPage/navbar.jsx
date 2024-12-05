@@ -1,16 +1,19 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
+import { useAuth } from "../../context/useAuth"
 
 const Navbar = () => {
+    const {user} = useAuth()
     const itemList = [
         {
             name: "SELL AN ITEM",
-            link: "/"
+            link: "/seller"
         },
         {
             name: "JOIN US ",
             link: "/"
         },
+        !user && 
         {
             name: "SIGN IN",
             link: "/login"

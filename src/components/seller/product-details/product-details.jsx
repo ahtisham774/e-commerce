@@ -5,8 +5,19 @@ import { ImageGrid } from "./components/image-grid"
 import { ProductInfo } from "./components/product-info"
 import { DimensionsTable } from "./components/dimensions-table"
 import { Categories } from "./components/categories"
+import { useEffect, useState } from "react"
+import { useAuth } from "../../../context/useAuth"
+import { API_URL } from "../../API"
 
 export default function ProductDetails() {
+
+
+
+
+
+
+
+
   return (
     <div className="min-h-screen bg-gray-50 my-6 w-full">
       <div className="max-w-7xl mx-auto">

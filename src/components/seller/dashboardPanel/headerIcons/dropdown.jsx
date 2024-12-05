@@ -7,7 +7,8 @@ function Dropdown({
   title, 
   data = [], 
   align = 'right', 
-  renderItem 
+  renderItem ,
+  footer
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const trigger = useRef(null)
@@ -87,6 +88,11 @@ function Dropdown({
               </li>
             ))}
           </ul>
+          {
+            footer && (
+              <div className='py-2 px-4'>{footer}</div>
+            )
+          }
         </div>
       </animated.div>
     </div>

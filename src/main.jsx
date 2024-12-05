@@ -7,12 +7,12 @@ import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/useAuth.jsx'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  
     <AuthProvider>
       <Toaster position='top-center' reverseOrder={false} />
       <BrowserRouter>
         <App />
       </BrowserRouter>
     </AuthProvider>
-  </StrictMode>
+ 
 )

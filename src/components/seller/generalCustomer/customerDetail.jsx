@@ -1,86 +1,113 @@
 import { Search, Star } from 'lucide-react'
 import ShowTitle from '../../buyer/showTitle'
 import CustomerCard from '../../landingPage/customerCard'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import ShowReviews from '../../../utils/showReviews'
+import { useParams } from 'react-router-dom'
+import { API_URL } from '../../API'
+import { useAuth } from '../../../context/useAuth'
 
 const CustomerDetail = () => {
   const customersToShow = 3
- 
-  const customers = [
-    {
-      name: 'Roberto Jr.',
-      role: 'Graphic Design',
-      img: '/assets/profile.png',
-      heading: 'Lorem ipsum dolor sit amet',
-      subHeading: 'Subheading',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      rating: 4.5
-    },
-    {
-      name: 'Roberto Jr.',
-      role: 'Graphic Design',
-      img: '/assets/profile.png',
-      heading: 'Lorem ipsum dolor sit amet',
-      subHeading: 'Subheading',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      rating: 4.5
-    },
-    {
-      name: 'Roberto Jr.',
-      role: 'Graphic Design',
-      img: '/assets/profile.png',
-      heading: 'Lorem ipsum dolor sit amet',
-      subHeading: 'Subheading',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      rating: 4.5
-    },
-    {
-      name: 'Roberto Jr.',
-      role: 'Graphic Design',
-      img: '/assets/profile.png',
-      heading: 'Lorem ipsum dolor sit amet',
-      subHeading: 'Subheading',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      rating: 4.5
-    },
-    {
-      name: 'Roberto Jr. 1',
-      role: 'Graphic Design',
-      img: '/assets/profile.png',
-      heading: 'Lorem ipsum dolor sit amet',
-      subHeading: 'Subheading',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      rating: 4.5
-    },
-    {
-      name: 'Roberto Jr.',
-      role: 'Graphic Design',
-      img: '/assets/profile.png',
-      heading: 'Lorem ipsum dolor sit amet',
-      subHeading: 'Subheading',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      rating: 4.5
-    },
-    {
-      name: 'Roberto Jr.',
-      role: 'Graphic Design',
-      img: '/assets/profile.png',
-      heading: 'Lorem ipsum dolor sit amet',
-      subHeading: 'Subheading',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      rating: 4.5
-    }
-  ]
 
-  
+  const { id } = useParams()
+  const { user } = useAuth()
+  const [customers, setCustomers] = useState([])
+
+  useEffect(() => {
+    if (id) {
+      fetch(
+        `${API_URL}/generalCustomers/getCustomersDetails/${id}/${user?._id}`
+      )
+        .then(res => res.json())
+        .then(data => {
+          console.log(data)
+          setCustomers(data.reviews.map(review => {
+            return {
+              img: '/assets/profile.png',
+              name: data.user.username,
+              rating: review.rating,
+              role: data.user.role,
+              description: review.comment,
+            }
+          }))
+        })
+        .catch(err => console.log(err))
+    }
+  }, [id, user._id])
+
+  // const customers = [
+  //   {
+  //     name: 'Roberto Jr.',
+  //     role: 'Graphic Design',
+  //     img: '/assets/profile.png',
+  //     heading: 'Lorem ipsum dolor sit amet',
+  //     subHeading: 'Subheading',
+  //     description:
+  //       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+  //     rating: 4.5
+  //   },
+  //   {
+  //     name: 'Roberto Jr.',
+  //     role: 'Graphic Design',
+  //     img: '/assets/profile.png',
+  //     heading: 'Lorem ipsum dolor sit amet',
+  //     subHeading: 'Subheading',
+  //     description:
+  //       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+  //     rating: 4.5
+  //   },
+  //   {
+  //     name: 'Roberto Jr.',
+  //     role: 'Graphic Design',
+  //     img: '/assets/profile.png',
+  //     heading: 'Lorem ipsum dolor sit amet',
+  //     subHeading: 'Subheading',
+  //     description:
+  //       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+  //     rating: 4.5
+  //   },
+  //   {
+  //     name: 'Roberto Jr.',
+  //     role: 'Graphic Design',
+  //     img: '/assets/profile.png',
+  //     heading: 'Lorem ipsum dolor sit amet',
+  //     subHeading: 'Subheading',
+  //     description:
+  //       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+  //     rating: 4.5
+  //   },
+  //   {
+  //     name: 'Roberto Jr. 1',
+  //     role: 'Graphic Design',
+  //     img: '/assets/profile.png',
+  //     heading: 'Lorem ipsum dolor sit amet',
+  //     subHeading: 'Subheading',
+  //     description:
+  //       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+  //     rating: 4.5
+  //   },
+  //   {
+  //     name: 'Roberto Jr.',
+  //     role: 'Graphic Design',
+  //     img: '/assets/profile.png',
+  //     heading: 'Lorem ipsum dolor sit amet',
+  //     subHeading: 'Subheading',
+  //     description:
+  //       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+  //     rating: 4.5
+  //   },
+  //   {
+  //     name: 'Roberto Jr.',
+  //     role: 'Graphic Design',
+  //     img: '/assets/profile.png',
+  //     heading: 'Lorem ipsum dolor sit amet',
+  //     subHeading: 'Subheading',
+  //     description:
+  //       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+  //     rating: 4.5
+  //   }
+  // ]
 
   return (
     <div className='py-6 w-full flex flex-col gap-8'>
@@ -224,7 +251,7 @@ const CustomerDetail = () => {
       </div>
       <div className='w-full flex flex-col gap-4'>
         <ShowTitle text='Reviews Given' />
-       <ShowReviews data={customers} />
+        <ShowReviews data={customers} />
       </div>
     </div>
   )

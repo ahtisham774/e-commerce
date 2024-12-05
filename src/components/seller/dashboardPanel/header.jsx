@@ -1,3 +1,4 @@
+import { useAuth } from '../../../context/useAuth'
 import Chat from './headerIcons/chat'
 import Notifications from './headerIcons/notification'
 import Settings from './headerIcons/setting'
@@ -6,6 +7,7 @@ import { Icon } from './icon'
 import { IconButton } from './iconButton'
 
 const Header = ({ onClick }) => {
+  const {user} = useAuth()
   return (
     <div className='w-full flex  items-center gap-5'>
       <div className='w-full flex flex-col-reverse gap-5 md:flex-row justify-between items-center'>
@@ -41,7 +43,7 @@ const Header = ({ onClick }) => {
             </div>
             <div className='flex items-center gap-5  pl-2'>
               <p className='hidden sm:block'>
-                Hello, <span className='font-bold'>Samantha</span>
+                Hello, <span className='font-bold'>{user?.name}</span>
               </p>
               <div className='flex items-center justify-center shrink-0 size-12 bg-[#C4C4C4] border-4 border-white rounded-full'>
                 {/* <img

@@ -212,3 +212,14 @@ body {
   font-family: 'Barlow', sans-serif !important;
 
 }
+
+.stsearch-box input{
+  border: none !important;
+  padding: 0 !important;
+}
+.stsearch-box input:focus{
+  outline: none !important;
+}
+.stdropdown-container{
+  border-color: #717171;
+}

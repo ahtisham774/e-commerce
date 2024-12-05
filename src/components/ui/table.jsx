@@ -2,7 +2,7 @@ import React from 'react'
 
 export const Table = ({ children }) => {
   return (
-    <table className="min-w-full  border-none table">
+    <table className="min-w-full  border-none table w-full">
       {children}
     </table>
   )

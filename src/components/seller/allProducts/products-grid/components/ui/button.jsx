@@ -1,6 +1,6 @@
 import React from "react"
 
-const Button = React.forwardRef(({ className, variant = "default", size = "default", ...props }, ref) => {
+const Button = React.forwardRef(({ className, variant = "default",onClick, size = "default", ...props }, ref) => {
   const variants = {
     default: "bg-white text-gray-900 hover:bg-gray-50",
     ghost: "hover:bg-gray-100",
@@ -15,6 +15,7 @@ const Button = React.forwardRef(({ className, variant = "default", size = "defau
   return (
     <button
       ref={ref}
+      onClick={onClick}
       className={`
         inline-flex items-center justify-center rounded-lg
         text-sm font-medium transition-colors
